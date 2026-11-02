@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/HelloCicd.Core/HelloCicd.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/HelloCicd.Tests/HelloCicd.Tests.csproj" />
+  </Folder>
+</Solution>
