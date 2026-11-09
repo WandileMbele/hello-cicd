@@ -8,7 +8,7 @@ public class CalculatorTests
     public void Add_TwoNumbers_ReturnsSum()
     {
         var calc = new Calculator();
-        Assert.Equal(6, calc.Add(2, 3));
+        Assert.Equal(5, calc.Add(2, 3));
     }
 
     [Fact]
