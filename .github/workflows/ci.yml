@@ -27,3 +27,8 @@ jobs:
 
       - name: Test
         run: dotnet test --no-build --configuration Release --verbosity normal
+
+      - name: Use a secret
+        run: echo "The secret is set"
+        env:
+          MY_SECRET: ${{ secrets.MY_SECRET }}
