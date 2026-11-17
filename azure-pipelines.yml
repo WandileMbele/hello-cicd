@@ -3,33 +3,59 @@ trigger:
     include:
       - main
 
-pr:
-  branches:
-    include:
-      - main
-
 pool:
   vmImage: ubuntu-latest
 
 variables:
   buildConfiguration: Release
 
-steps:
-  - task: UseDotNet@2
-    displayName: Install .NET SDK
-    inputs:
-      packageType: sdk
-      version: 10.0.x
+stages:
+  - stage: Build
+    displayName: Build and test
+    jobs:
+      - job: BuildJob
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              packageType: sdk
+              version: 10.0.x
 
-  - script: dotnet restore
-    displayName: Restore
+          - script: dotnet restore
+            displayName: Restore
 
-  - script: dotnet build --no-restore --configuration $(buildConfiguration)
-    displayName: Build
+          - script: dotnet build --no-restore --configuration $(buildConfiguration)
+            displayName: Build
 
-  - task: DotNetCoreCLI@2
-    displayName: Test
-    inputs:
-      command: test
-      projects: '**/*Tests.csproj'
-      arguments: '--no-build --configuration $(buildConfiguration)'
+          - task: DotNetCoreCLI@2
+            displayName: Test
+            inputs:
+              command: test
+              projects: '**/*Tests.csproj'
+              arguments: '--no-build --configuration $(buildConfiguration)'
+
+          - task: DotNetCoreCLI@2
+            displayName: Publish
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: 'src/HelloCicd.Core/HelloCicd.Core.csproj'
+              arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+              zipAfterPublish: true
+
+          - task: PublishPipelineArtifact@1
+            displayName: Upload artifact
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+              artifact: drop
+
+  - stage: Deploy
+    displayName: Deploy (placeholder)
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - job: DeployJob
+        steps:
+          - download: current
+            artifact: drop
+          - script: ls -R $(Pipeline.Workspace)/drop
+            displayName: Show what we would deploy
